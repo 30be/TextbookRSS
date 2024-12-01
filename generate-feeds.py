@@ -72,9 +72,9 @@ def get_config(feed):
 for feed in os.listdir(feeds_directory):
     config = get_config(feed)
     last_updated = datetime.fromisoformat(config["last_updated"])
-    print(f"Last updated: {last_updated}")
     if datetime.now() > last_updated + (0.9 * timedelta(days=config["days_period"])):
         print(f"Updating {feed}")
         add_articles(feed, config["articles_per_day"])
-    config["last_updated"] = datetime.now().isoformat()
+        config["last_updated"] = datetime.now().isoformat()
+    print(f"Last updated: {last_updated}")
     yaml.dump(config, open(os.path.join(feeds_directory, feed, "config.yaml"), "w"))
