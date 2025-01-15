@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 
 import yaml
 from feedgen.feed import FeedGenerator
-
+from bs4 import BeautifulSoup
+import requests
 # Get the current directory
 feeds_directory = os.path.join(os.getcwd(), "feeds")
 
@@ -18,11 +19,12 @@ def create_feed(name, chapters):
     fg.link(href="http://23.94.5.170", rel="self")
     fg.language("en")
     for chapter in chapters:
+        chapter_name = BeautifulSoup(requests.get(chapter).content, 'html.parser').title.string
         fe = fg.add_entry()
-        fe.id(f"http://23.94.5.170/feeds/{name}/{chapter}")
-        fe.link(href=f"http://23.94.5.170/feeds/{name}/{chapter}")
-        fe.title(chapter)
-        fe.description(f"Chapter {chapter} of {name}")
+        fe.id(chapter)
+        fe.link()
+        fe.title(chapter_name)
+        fe.description(f"Chapter {chapter_name} of {name}: {chapter}")
     return fg
 
 

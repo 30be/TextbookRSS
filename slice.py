@@ -26,7 +26,7 @@ def main(filename, days_period, articles_per_day):
         new_doc.save(f"{output_dir}/{title}.pdf")
         new_doc.close()
         print(f"Saved chapter '{title}'")
-        chapter_list += title + ".pdf\n"
+        chapter_list += f"https://23.94.5.170/{output_dir}/{title}.pdf"
 
     with open(f"{output_dir}/unread_chapters.txt", "w") as f:
         f.write(chapter_list)
