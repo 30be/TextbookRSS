@@ -45,10 +45,15 @@ def create_feed(name, chapters):
 
 
 def add_articles(book, amount):
-    with open(os.path.join(feeds_directory, book, "unread_chapters.txt"), "r") as f:
+    with open(os.path.join(feeds_directory, book, "unread_chapters.txt"), "a+") as f:
+        f.seek(0)  # a+ is to creat the file if it doesn't exist
         unread_chapters = [line.rstrip("\n") for line in f.readlines()]
-    with open(os.path.join(feeds_directory, book, "read_chapters.txt"), "r") as f:
+    with open(os.path.join(feeds_directory, book, "read_chapters.txt"), "a+") as f:
+        f.seek(0)  # a+ is to creat the file if it doesn't exist
         read_chapters = [line.rstrip("\n") for line in f.readlines()]
+    if len(unread_chapters) == 0:
+        print("No unread chapters left")
+        return
     read_chapters += unread_chapters[:amount]
     unread_chapters = unread_chapters[amount:]
     with open(os.path.join(feeds_directory, book, "unread_chapters.txt"), "w") as f:
