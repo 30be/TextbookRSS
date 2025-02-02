@@ -28,14 +28,16 @@ def create_feed(name, chapters):
     fg.language("en")
     links = 0
     for chapter in chapters:
-        chapter_name = BeautifulSoup(requests.get(chapter).content, "html.parser").title.string
         fe = fg.add_entry()
         fe.id(chapter)
+
         if is_link(chapter):
-            fe.link(chapter)
+            link = chapter
             links += 1
         else:
-            fe.link(f"http://23.94.5.170/feeds/{name}/{chapter}")
+            link = f"http://23.94.5.170/feeds/{name}/{chapter}"
+        fe.link(link)
+        chapter_name = BeautifulSoup(requests.get(link).content, "html.parser").title.string
         fe.title(chapter_name)
         fe.description(f"Chapter {chapter_name} of {name}: {chapter}")
     print(f"Created{len(chapters)}, {links} of which are external links")
