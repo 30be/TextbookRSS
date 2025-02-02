@@ -37,7 +37,7 @@ def create_feed(name, chapters):
         else:
             link = f"http://23.94.5.170/feeds/{name}/{chapter}"
         fe.link(href=link)
-        chapter_name = BeautifulSoup(requests.get(link).content, "html.parser").title.string
+        chapter_name = BeautifulSoup(requests.get(link).content, "html.parser").title
         fe.title(chapter_name)
         fe.description(f"Chapter {chapter_name} of {name}: {chapter}")
     print(f"Created{len(chapters)}, {links} of which are external links")
