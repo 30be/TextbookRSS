@@ -40,7 +40,7 @@ def create_feed(name, chapters):
         chapter_name = BeautifulSoup(requests.get(link).content, "html.parser").title
         fe.title(chapter_name)
         fe.description(f"Chapter {chapter_name} of {name}: {chapter}")
-    print(f"Created{len(chapters)}, {links} of which are external links")
+    print(f"Created {len(chapters)} chapters for {name}, {links} of which are external links")
     return fg
 
 
@@ -57,7 +57,7 @@ def add_articles(book, amount):
         f.write("\n".join(read_chapters))
 
     output_file = os.path.join(feeds_directory, book, "feed.rss")
-    print(f"Updating feed for {book} with {read_chapters[-amount:]}")
+    print(f"Added {read_chapters[-amount:]}")
     create_feed(book, read_chapters).rss_file(output_file)
 
 
@@ -94,8 +94,8 @@ for feed in os.listdir(feeds_directory):
     config = get_config(feed)
     last_updated = datetime.fromisoformat(config["last_updated"])
     if datetime.now() > last_updated + (0.9 * timedelta(days=config["days_period"])):
-        print(f"Updating {feed}")
-        add_articles(feed, config["articles_per_day"])
         config["last_updated"] = datetime.now().isoformat()
-    print(f"Last updated: {last_updated}")
+        add_articles(feed, config["articles_per_day"])
+    else:
+        print(f"Last updated {feed}: {last_updated}")
     set_config(feed, config)
