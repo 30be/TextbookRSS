@@ -5,8 +5,16 @@ import yaml
 from feedgen.feed import FeedGenerator
 from bs4 import BeautifulSoup
 import requests
+import re
+
 # Get the current directory
 feeds_directory = os.path.join(os.getcwd(), "feeds")
+
+
+def is_link(string):
+    return re.match(
+        r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", string
+    )  # http[s]://[www.]google.com
 
 
 def create_feed(name, chapters):
@@ -18,33 +26,37 @@ def create_feed(name, chapters):
     fg.subtitle(f"Automatically generated RSS feed feed for {name} textbook")
     fg.link(href="http://23.94.5.170", rel="self")
     fg.language("en")
+    links = 0
     for chapter in chapters:
-        chapter_name = BeautifulSoup(requests.get(chapter).content, 'html.parser').title.string
+        chapter_name = BeautifulSoup(requests.get(chapter).content, "html.parser").title.string
         fe = fg.add_entry()
         fe.id(chapter)
-        fe.link()
+        if is_link(chapter):
+            fe.link(chapter)
+            links += 1
+        else:
+            fe.link(f"http://23.94.5.170/feeds/{name}/{chapter}")
         fe.title(chapter_name)
         fe.description(f"Chapter {chapter_name} of {name}: {chapter}")
+    print(f"Created{len(chapters)}, {links} of which are external links")
     return fg
 
 
 def add_articles(book, amount):
-    with open(os.path.join(feeds_directory, book, "unread_chapters.txt"), "a+") as f:
-        f.seek(0)
+    with open(os.path.join(feeds_directory, book, "unread_chapters.txt"), "r") as f:
         unread_chapters = [line.rstrip("\n") for line in f.readlines()]
-    with open(os.path.join(feeds_directory, book, "read_chapters.txt"), "a+") as f:
-        f.seek(0)
+    with open(os.path.join(feeds_directory, book, "read_chapters.txt"), "r") as f:
         read_chapters = [line.rstrip("\n") for line in f.readlines()]
-    read_chapters.extend(unread_chapters[:amount])
+    read_chapters += unread_chapters[:amount]
     unread_chapters = unread_chapters[amount:]
     with open(os.path.join(feeds_directory, book, "unread_chapters.txt"), "w") as f:
         f.write("\n".join(unread_chapters))
     with open(os.path.join(feeds_directory, book, "read_chapters.txt"), "w") as f:
         f.write("\n".join(read_chapters))
 
-    output = os.path.join(feeds_directory, book, "feed.rss")
-    print(f"Updating feed for {book} to {read_chapters}")
-    create_feed(book, read_chapters).rss_file(output)
+    output_file = os.path.join(feeds_directory, book, "feed.rss")
+    print(f"Updating feed for {book} with {read_chapters[-amount:]}")
+    create_feed(book, read_chapters).rss_file(output_file)
 
 
 defaults = {
@@ -71,6 +83,11 @@ def get_config(feed):
     return defaults
 
 
+def set_config(feed, config):
+    with open(os.path.join(feeds_directory, feed, "config.yaml"), "w") as f:
+        yaml.dump(config, f)
+
+
 for feed in os.listdir(feeds_directory):
     config = get_config(feed)
     last_updated = datetime.fromisoformat(config["last_updated"])
@@ -79,4 +96,4 @@ for feed in os.listdir(feeds_directory):
         add_articles(feed, config["articles_per_day"])
         config["last_updated"] = datetime.now().isoformat()
     print(f"Last updated: {last_updated}")
-    yaml.dump(config, open(os.path.join(feeds_directory, feed, "config.yaml"), "w"))
+    set_config(feed, config)
