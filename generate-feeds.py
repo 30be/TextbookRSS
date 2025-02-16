@@ -13,7 +13,7 @@ feeds_directory = os.path.join(os.getcwd(), "feeds")
 
 def is_link(string):
     return re.match(
-        r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", string
+        r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]+\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", string
     )  # http[s]://[www.]google.com
 
 
@@ -37,7 +37,11 @@ def create_feed(name, chapters):
         else:
             link = f"http://23.94.5.170/feeds/{name}/{chapter}"
         fe.link(href=link)
-        chapter_name = str(BeautifulSoup(requests.get(link).content, "html.parser").title)
+        try:
+            chapter_name = str(BeautifulSoup(requests.get(link, timeout=2).content, "html.parser").title)
+        except Exception:
+            print(f"Could not get title for {link}")
+            chapter_name = link
         fe.title(chapter_name)
         fe.description(f"Chapter {chapter_name} of {name}: {chapter}")
     print(f"Created {len(chapters)} chapters for {name}, {links} of which are external links")

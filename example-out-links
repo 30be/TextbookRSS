@@ -1,0 +1,1 @@
+wl-paste | python out-links.py | sed 's/^/https:\/\/youtube.com/'
