@@ -7,9 +7,10 @@ import argparse
 def main(filename, days_period, articles_per_day):
     doc = pymupdf.open(filename)  # or pymupdf.Document(filename)
     toc = doc.get_toc()
-    chapters = [
-        [item[2], item[1]] for item in toc if item[0] == 1
-    ]  # [[page, name], [page, name], ...]
+    chapters = [[item[2], item[1]] for item in toc if item[0] == 1]  # [[page, name], [page, name], ...]
+    if len(chapters) == 0:
+        print("No chapters found in this file!!!")
+        return
     print(chapters)
 
     output_dir = "feeds/" + os.path.splitext(filename)[0]
@@ -26,7 +27,7 @@ def main(filename, days_period, articles_per_day):
         new_doc.save(f"{output_dir}/{title}.pdf")
         new_doc.close()
         print(f"Saved chapter '{title}'")
-        chapter_list += f"https://23.94.5.170/{output_dir}/{title}.pdf"
+        chapter_list += f"http://23.94.5.170/{output_dir}/{title}.pdf\n"
 
     with open(f"{output_dir}/unread_chapters.txt", "w") as f:
         f.write(chapter_list)
@@ -34,9 +35,7 @@ def main(filename, days_period, articles_per_day):
     with open(f"{output_dir}/read_chapters.txt", "w") as f:
         pass  # just make an empty file
 
-    print(
-        f"done. Saved {len(chapters)} chapters to {output_dir}. their list is saved as unread_chapters.txt"
-    )
+    print(f"done. Saved {len(chapters)} chapters to {output_dir}. their list is saved as unread_chapters.txt")
 
     with open(f"{output_dir}/config.yaml", "w") as f:
         yaml.dump({"days_period": days_period, "articles_per_day": articles_per_day}, f)
@@ -45,9 +44,7 @@ def main(filename, days_period, articles_per_day):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Process a PDF file and split it into chapters."
-    )
+    parser = argparse.ArgumentParser(description="Process a PDF file and split it into chapters.")
     parser.add_argument("filename", type=str, help="The PDF file name to process")
     parser.add_argument(
         "--days_period",
