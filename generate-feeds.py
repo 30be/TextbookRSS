@@ -99,6 +99,10 @@ def set_config(feed, config):
         yaml.dump(config, f)
 
 
+if not os.path.exists("generate_flag"):
+    print("Not generating feeds because generate_flag file does not  exist")
+    exit(0)
+
 for feed in os.listdir(feeds_directory):
     config = get_config(feed)
     last_updated = datetime.fromisoformat(config["last_updated"])
