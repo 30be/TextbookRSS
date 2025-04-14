@@ -1,0 +1,24 @@
+3 Probability and inference
+29 Single-parameter models
+63 Introduction to multiparameter models
+83 Asymptotics and connections to non-Bayesian approaches
+101 Hierarchical models
+141 Model checking
+165 Evaluating, comparing, and expanding models
+197 Modeling accounting for data collection
+237 Decision analysis
+261 Introduction to Bayesian computation
+275 Basics of Markov chain simulation
+293 Computationally efficient Markov chain simulation
+311 Modal and distributional approximations
+353 Introduction to regression models
+381 Hierarchical linear models
+405 Generalized linear models
+435 Models for robust inference
+449 Models for missing data
+471 Parametric nonlinear models
+487 Basis function models
+501 Gaussian process models
+519 Finite mixture models
+545 Dirichlet process models
+575 Appendixes

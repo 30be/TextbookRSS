@@ -2,6 +2,34 @@ import pymupdf
 import os
 import yaml
 import argparse
+import sys
+
+
+def read_chapters():
+    print("Please enter chapters manually (one per line) in the format: Page Chapter Name")
+    print("Press Ctrl+D (Linux/macOS) or Ctrl+Z then Enter (Windows) when done.")
+    manual_chapters = []
+    while True:
+        try:
+            line = sys.stdin.readline()
+            if not line:
+                break
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(" ", 1)
+            if len(parts) == 2:
+                page_str, title = parts
+                try:
+                    page = int(page_str)
+                    manual_chapters.append([page, title])
+                except ValueError:
+                    print(f"Skipping invalid line (page number '{page_str}' is not an integer): {line}")
+            else:
+                print(f"Skipping invalid line (format error): {line}")
+        except EOFError:
+            break
+    return manual_chapters
 
 
 def main(filename, days_period, articles_per_day):
@@ -9,8 +37,8 @@ def main(filename, days_period, articles_per_day):
     toc = doc.get_toc()
     chapters = [[item[2], item[1]] for item in toc if item[0] == 1]  # [[page, name], [page, name], ...]
     if len(chapters) == 0:
-        print("No chapters found in this file!!!")
-        return
+        print("No chapters found via TOC in this file.")
+        chapters = read_chapters()
     print(chapters)
 
     output_dir = "feeds/" + os.path.splitext(filename)[0]
